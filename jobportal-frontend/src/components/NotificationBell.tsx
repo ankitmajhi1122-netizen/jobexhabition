@@ -51,7 +51,7 @@ const NotificationBell = () => {
             const response = await api.get('/candidate/notifications.php?limit=10');
             console.log("NotificationBell: Fetched notifications", response.data);
 
-            if (response.data.status === 'success') {
+            if (response.data.success) {
                 setNotifications(response.data.data.notifications);
                 setUnreadCount(response.data.data.unread_count);
                 console.log(`NotificationBell: ${response.data.data.unread_count} unread notifications`);

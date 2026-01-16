@@ -8,6 +8,7 @@ import {
     Trash2, ExternalLink, Bell, LogOut, Loader2, BookmarkCheck,
     FileText, ChevronRight, Calendar, AlertCircle
 } from 'lucide-react';
+import ModernNav from '../../components/ModernNav';
 
 interface SavedJob {
     saved_job_id: number;
@@ -33,54 +34,127 @@ const SavedJobs = () => {
     const [message, setMessage] = useState('');
 
     useEffect(() => {
-        console.log("SavedJobs: Component mounted, fetching saved jobs");
+        console.log("=== SavedJobs: Component Mounted ===");
+        console.log("SavedJobs: User data:", JSON.stringify(user, null, 2));
+        console.log("SavedJobs: User ID:", user?.id);
+        console.log("SavedJobs: User Name:", user?.name);
+        console.log("SavedJobs: Timestamp:", new Date().toISOString());
+        console.log("SavedJobs: Initiating saved jobs fetch...");
         fetchSavedJobs();
     }, []);
 
     const fetchSavedJobs = async () => {
+        console.log("=== SavedJobs: Fetching Saved Jobs ===");
+        console.log("SavedJobs: API endpoint: /candidate/saved_jobs.php");
+        console.log("SavedJobs: Request started at:", new Date().toISOString());
+        
         try {
-            console.log("SavedJobs: Fetching saved jobs from API");
             const response = await api.get('/candidate/saved_jobs.php');
-            console.log("SavedJobs: Response received", response.data);
             
-            if (response.data.status === 'success') {
-                setSavedJobs(response.data.data);
-                console.log(`SavedJobs: Loaded ${response.data.data.length} saved jobs`);
+            console.log("=== SavedJobs: Response Received ===");
+            console.log("SavedJobs: HTTP Status:", response.status);
+            console.log("SavedJobs: Response headers:", response.headers);
+            console.log("SavedJobs: Full response data:", JSON.stringify(response.data, null, 2));
+            console.log("SavedJobs: Success flag (boolean):", response.data.success);
+            console.log("SavedJobs: Message:", response.data.message);
+            
+            if (response.data.success) {
+                const jobs = response.data.data;
+                console.log("SavedJobs: Saved jobs count:", jobs.length);
+                console.log("SavedJobs: Saved jobs array:", jobs);
+                
+                // Log each saved job in detail
+                jobs.forEach((job: SavedJob, index: number) => {
+                    console.log(`SavedJobs: Job ${index + 1}:`, {
+                        saved_job_id: job.saved_job_id,
+                        job_id: job.job_id,
+                        title: job.title,
+                        company: job.company_name,
+                        location: job.location,
+                        job_type: job.job_type,
+                        salary_range: `${job.salary_min} - ${job.salary_max}`,
+                        notes: job.notes,
+                        saved_at: job.saved_at
+                    });
+                });
+                
+                console.log("SavedJobs: Setting saved jobs state...");
+                setSavedJobs(jobs);
+                console.log("SavedJobs: State updated successfully");
+            } else {
+                console.warn("SavedJobs: Response status not success");
+                console.warn("SavedJobs: Error message:", response.data.message);
             }
-        } catch (error) {
-            console.error('SavedJobs: Failed to fetch saved jobs', error);
+        } catch (error: any) {
+            console.error("=== SavedJobs: ERROR ===");
+            console.error("SavedJobs: Failed to fetch saved jobs");
+            console.error("SavedJobs: Error message:", error.message);
+            console.error("SavedJobs: Error response:", error.response?.data);
+            console.error("SavedJobs: Error status:", error.response?.status);
+            console.error("SavedJobs: Error headers:", error.response?.headers);
+            console.error("SavedJobs: Full error object:", error);
             setMessage('Failed to load saved jobs');
         } finally {
+            console.log("SavedJobs: Setting loading to false");
             setLoading(false);
+            console.log("SavedJobs: Fetch process completed");
         }
     };
 
     const handleRemove = async (jobId: number) => {
-        if (!confirm('Remove this job from saved?')) return;
+        console.log(`SavedJobs: Remove button clicked for job ID: ${jobId}`);
+        
+        if (!confirm('Remove this job from saved?')) {
+            console.log("SavedJobs: User cancelled removal");
+            return;
+        }
 
-        console.log(`SavedJobs: Removing job ${jobId}`);
+        console.log(`SavedJobs: User confirmed removal of job ${jobId}`);
+        console.log("SavedJobs: Setting removing state...");
         setRemovingJobId(jobId);
 
         try {
-            await api.delete('/candidate/saved_jobs.php', {
+            console.log("SavedJobs: Sending DELETE request...");
+            console.log("SavedJobs: Endpoint: /candidate/saved_jobs.php");
+            console.log("SavedJobs: Payload:", { job_id: jobId });
+            
+            const response = await api.delete('/candidate/saved_jobs.php', {
                 data: { job_id: jobId }
             });
 
-            console.log(`SavedJobs: Job ${jobId} removed successfully`);
+            console.log("SavedJobs: Delete response:", response.data);
+            console.log(`SavedJobs: Job ${jobId} removed successfully from backend`);
+            console.log("SavedJobs: Updating local state...");
+            
+            const previousCount = savedJobs.length;
             setSavedJobs(prev => prev.filter(job => job.job_id !== jobId));
+            
+            console.log(`SavedJobs: Saved jobs count: ${previousCount} -> ${previousCount - 1}`);
             setMessage('Job removed from saved');
-            setTimeout(() => setMessage(''), 3000);
-        } catch (error) {
-            console.error('SavedJobs: Failed to remove job', error);
+            console.log("SavedJobs: Success message set, will clear in 3 seconds");
+            
+            setTimeout(() => {
+                console.log("SavedJobs: Clearing success message");
+                setMessage('');
+            }, 3000);
+        } catch (error: any) {
+            console.error("=== SavedJobs: Remove Error ===");
+            console.error('SavedJobs: Failed to remove job');
+            console.error("SavedJobs: Error message:", error.message);
+            console.error("SavedJobs: Error response:", error.response?.data);
+            console.error("SavedJobs: Full error:", error);
             setMessage('Failed to remove job');
         } finally {
+            console.log("SavedJobs: Clearing removing state");
             setRemovingJobId(null);
         }
     };
 
     const handleLogout = () => {
-        console.log("SavedJobs: User logging out");
+        console.log("SavedJobs: Logout initiated");
+        console.log("SavedJobs: Current user:", user?.name);
         logout();
+        console.log("SavedJobs: Navigating to login");
         navigate('/login');
     };
 
@@ -93,43 +167,8 @@ const SavedJobs = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 font-sans">
-            {/* Navigation */}
-            <nav className="fixed top-0 w-full bg-white/90 backdrop-blur-md border-b border-gray-100 z-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
-                        <div className="flex items-center gap-3">
-                            <div className="bg-blue-600 p-2 rounded-lg shadow-lg shadow-blue-900/20">
-                                <Briefcase className="h-5 w-5 text-white" />
-                            </div>
-                            <span className="text-xl font-bold tracking-tight text-gray-900">JobPortal</span>
-                        </div>
-
-                        <div className="hidden md:flex items-center space-x-8">
-                            <Link to="/candidate/dashboard" className="text-gray-500 hover:text-blue-600 font-medium transition-colors">Dashboard</Link>
-                            <Link to="/jobs" className="text-gray-500 hover:text-blue-600 font-medium transition-colors">Find Jobs</Link>
-                            <Link to="/candidate/applications" className="text-gray-500 hover:text-blue-600 font-medium transition-colors">My Applications</Link>
-                            <Link to="/candidate/saved-jobs" className="text-blue-600 font-bold transition-colors">Saved Jobs</Link>
-                            <Link to="/candidate/profile" className="text-gray-500 hover:text-blue-600 font-medium transition-colors">Profile</Link>
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                            <button className="p-2 text-gray-400 hover:text-blue-600 transition-colors relative rounded-full hover:bg-gray-50">
-                                <Bell className="w-5 h-5" />
-                            </button>
-                            <div 
-                                className="h-9 w-9 bg-gradient-to-tr from-blue-100 to-blue-50 rounded-full flex items-center justify-center text-blue-700 font-bold border border-blue-200 shadow-sm cursor-pointer"
-                                onClick={() => navigate('/candidate/profile')}
-                            >
-                                {user?.name?.charAt(0) || 'U'}
-                            </div>
-                            <button onClick={handleLogout} className="text-gray-400 hover:text-red-500 transition-colors">
-                                <LogOut className="w-5 h-5" />
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+            <ModernNav activeTab="saved" />
 
             {/* Main Content */}
             <main className="pt-24 px-4 pb-12 max-w-7xl mx-auto">

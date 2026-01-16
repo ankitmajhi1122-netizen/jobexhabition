@@ -46,7 +46,7 @@ const JobApplicants = () => {
     const fetchApplicants = async () => {
         try {
             const response = await api.get(`/company/applicants.php?job_id=${jobId}`);
-            if (response.data.status === 'success') {
+            if (response.data.success) {
                 setApplicants(response.data.data);
             }
         } catch (error) {
@@ -65,7 +65,7 @@ const JobApplicants = () => {
                 status: newStatus
             });
 
-            if (response.data.status === 'success') {
+            if (response.data.success) {
                 alert(`Candidate ${newStatus} successfully! Email notification sent.`);
                 // Refresh list
                 fetchApplicants();

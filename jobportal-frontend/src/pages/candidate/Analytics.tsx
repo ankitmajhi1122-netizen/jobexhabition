@@ -7,6 +7,7 @@ import {
     TrendingUp, FileText, Eye, CheckCircle, XCircle, Clock, Award,
     Bell, LogOut, Loader2, Briefcase, BarChart3, PieChart, Activity
 } from 'lucide-react';
+import ModernNav from '../../components/ModernNav';
 
 interface AnalyticsData {
     applications: {
@@ -36,28 +37,63 @@ const Analytics = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        console.log("Analytics: Component mounted, fetching data");
+        console.log("=== Analytics: Component Mounted ===");
+        console.log("Analytics: User data:", JSON.stringify(user, null, 2));
+        console.log("Analytics: User ID:", user?.id);
+        console.log("Analytics: User Name:", user?.name);
+        console.log("Analytics: Timestamp:", new Date().toISOString());
+        console.log("Analytics: Initiating fetch...");
         fetchAnalytics();
     }, []);
 
     const fetchAnalytics = async () => {
+        console.log("=== Analytics: Fetching Data ===");
+        console.log("Analytics: API endpoint: /candidate/analytics.php");
+        console.log("Analytics: Request started at:", new Date().toISOString());
+        
         try {
-            console.log("Analytics: Fetching analytics data");
             const response = await api.get('/candidate/analytics.php');
-            console.log("Analytics: Data received", response.data);
-            if (response.data.status === 'success') {
-                setData(response.data.data);
+            
+            console.log("=== Analytics: Response Received ===");
+            console.log("Analytics: HTTP Status:", response.status);
+            console.log("Analytics: Response headers:", response.headers);
+            console.log("Analytics: Full response:", JSON.stringify(response.data, null, 2));
+            console.log("Analytics: Success flag (boolean):", response.data.success);
+            
+            if (response.data.success) {
+                const analyticsData = response.data.data;
+                console.log("=== Analytics: Processing Data ===");
+                console.log("Analytics: Applications stats:", analyticsData.applications);
+                console.log("Analytics: Total applications:", analyticsData.applications.total);
+                console.log("Analytics: Response rate:", analyticsData.applications.response_rate);
+                console.log("Analytics: Success rate:", analyticsData.applications.success_rate);
+                console.log("Analytics: Profile views:", analyticsData.profile_views);
+                console.log("Analytics: Monthly trend:", analyticsData.monthly_trend);
+                console.log("Analytics: Top job types:", analyticsData.top_job_types);
+                console.log("Analytics: Profile completeness:", analyticsData.profile_completeness);
+                console.log("Analytics: Setting state...");
+                setData(analyticsData);
+                console.log("Analytics: State updated successfully");
             }
-        } catch (error) {
-            console.error('Analytics: Failed to fetch', error);
+        } catch (error: any) {
+            console.error("=== Analytics: ERROR ===");
+            console.error('Analytics: Failed to fetch');
+            console.error("Analytics: Error message:", error.message);
+            console.error("Analytics: Error response:", error.response?.data);
+            console.error("Analytics: Error status:", error.response?.status);
+            console.error("Analytics: Full error:", error);
         } finally {
+            console.log("Analytics: Setting loading to false");
             setLoading(false);
+            console.log("Analytics: Fetch completed");
         }
     };
 
     const handleLogout = () => {
-        console.log("Analytics: User logging out");
+        console.log("Analytics: Logout initiated");
+        console.log("Analytics: Current user:", user?.name);
         logout();
+        console.log("Analytics: Navigating to login");
         navigate('/login');
     };
 
@@ -83,43 +119,8 @@ const Analytics = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50 font-sans">
-            {/* Navigation */}
-            <nav className="fixed top-0 w-full bg-white/90 backdrop-blur-md border-b border-gray-100 z-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
-                        <div className="flex items-center gap-3">
-                            <div className="bg-blue-600 p-2 rounded-lg shadow-lg">
-                                <Briefcase className="h-5 w-5 text-white" />
-                            </div>
-                            <span className="text-xl font-bold">JobPortal</span>
-                        </div>
-
-                        <div className="hidden md:flex items-center space-x-8">
-                            <Link to="/candidate/dashboard" className="text-gray-500 hover:text-blue-600 font-medium transition-colors">Dashboard</Link>
-                            <Link to="/jobs" className="text-gray-500 hover:text-blue-600 font-medium transition-colors">Find Jobs</Link>
-                            <Link to="/candidate/applications" className="text-gray-500 hover:text-blue-600 font-medium transition-colors">Applications</Link>
-                            <Link to="/candidate/analytics" className="text-blue-600 font-bold">Analytics</Link>
-                            <Link to="/candidate/profile" className="text-gray-500 hover:text-blue-600 font-medium transition-colors">Profile</Link>
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                            <button className="p-2 text-gray-400 hover:text-blue-600 transition-colors relative rounded-full hover:bg-gray-50">
-                                <Bell className="w-5 h-5" />
-                            </button>
-                            <div 
-                                className="h-9 w-9 bg-gradient-to-tr from-blue-100 to-blue-50 rounded-full flex items-center justify-center text-blue-700 font-bold border border-blue-200 shadow-sm cursor-pointer"
-                                onClick={() => navigate('/candidate/profile')}
-                            >
-                                {user?.name?.charAt(0) || 'U'}
-                            </div>
-                            <button onClick={handleLogout} className="text-gray-400 hover:text-red-500 transition-colors">
-                                <LogOut className="w-5 h-5" />
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+            <ModernNav activeTab="dashboard" />
 
             {/* Main Content */}
             <main className="pt-24 px-4 pb-12 max-w-7xl mx-auto">

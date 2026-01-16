@@ -44,7 +44,7 @@ const WorkExperienceManager = ({ onUpdate }: { onUpdate?: () => void }) => {
         try {
             console.log("WorkExperienceManager: Fetching experiences");
             const response = await api.get('/candidate/work_experience.php');
-            if (response.data.status === 'success') {
+            if (response.data.success) {
                 setExperiences(response.data.data);
                 console.log(`WorkExperienceManager: Loaded ${response.data.data.length} experiences`);
             }

@@ -4,8 +4,9 @@ import { useAuth } from '../../auth/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-    Briefcase, FileText, User,
-    LogOut, Bell, TrendingUp, Search, Bookmark, Trophy, BarChart3
+    Briefcase, FileText, User, Eye, CheckCircle2, XCircle, Clock,
+    LogOut, Bell, TrendingUp, Search, Bookmark, Trophy, BarChart3,
+    ArrowUpRight, ArrowDownRight, Zap, Target, Star, Award, Activity
 } from 'lucide-react';
 import NotificationBell from '../../components/NotificationBell';
 
@@ -18,32 +19,60 @@ const CandidateDashboard = () => {
     const [stats, setStats] = useState({
         applications: 0,
         shortlisted: 0,
-        views: 0
+        views: 0,
+        saved: 0,
+        applied: 0,
+        viewed: 0,
+        rejected: 0,
+        hired: 0,
+        responseRate: 0,
+        successRate: 0,
+        profileCompleteness: 0
     });
     const [recentViewers, setRecentViewers] = useState<any[]>([]);
+    const [monthlyTrend, setMonthlyTrend] = useState<any[]>([]);
 
     useEffect(() => {
-        console.log("CandidateDashboard: Component mounted, user:", user);
+        console.log("=== CandidateDashboard: Component Mounted ===");
+        console.log("CandidateDashboard: User data:", JSON.stringify(user, null, 2));
+        console.log("CandidateDashboard: User ID:", user?.id);
+        console.log("CandidateDashboard: User Name:", user?.name);
+        console.log("CandidateDashboard: User Role:", user?.role);
 
         const fetchDashboardData = async () => {
-            console.log("CandidateDashboard: Fetching dashboard data...");
+            console.log("CandidateDashboard: Starting to fetch dashboard data...");
+            console.log("CandidateDashboard: Timestamp:", new Date().toISOString());
+            
             try {
+                console.log("CandidateDashboard: Making parallel API calls...");
+                
                 // Parallel fetching
-                const [appsRes, viewsRes] = await Promise.all([
+                const [appsRes, viewsRes, profileRes, savedRes, analyticsRes] = await Promise.all([
                     api.get('/candidate/applications.php'),
-                    api.get('/candidate/profile_views.php')
+                    api.get('/candidate/profile_views.php'),
+                    api.get('/candidate/profile.php'),
+                    api.get('/candidate/saved_jobs.php'),
+                    api.get('/candidate/analytics.php')
                 ]);
 
-                console.log("CandidateDashboard: Applications data:", appsRes.data);
-                console.log("CandidateDashboard: Views data:", viewsRes.data);
+                console.log("=== CandidateDashboard: All Responses Received ===");
 
                 // Process Applications
                 let appCount = 0;
                 let shortCount = 0;
+                let appliedCount = 0;
+                let viewedCount = 0;
+                let rejectedCount = 0;
+                let hiredCount = 0;
+                
                 if (appsRes.data.success) {
                     const apps = appsRes.data.data;
                     appCount = apps.length;
                     shortCount = apps.filter((a: any) => a.status === 'shortlisted').length;
+                    appliedCount = apps.filter((a: any) => a.status === 'applied').length;
+                    viewedCount = apps.filter((a: any) => a.status === 'viewed').length;
+                    rejectedCount = apps.filter((a: any) => a.status === 'rejected').length;
+                    hiredCount = apps.filter((a: any) => a.status === 'hired').length;
                 }
 
                 // Process Views
@@ -54,21 +83,71 @@ const CandidateDashboard = () => {
                     viewers = viewsRes.data.data.views;
                 }
 
-                setStats({ applications: appCount, shortlisted: shortCount, views: viewCount });
-                setRecentViewers(viewers);
+                // Process Profile
+                let profileCompleteness = 0;
+                if (profileRes.data.success) {
+                    profileCompleteness = profileRes.data.data.profile_completeness || 0;
+                }
 
-            } catch (error) {
-                console.error("CandidateDashboard: Failed to fetch dashboard data", error);
+                // Process Saved Jobs
+                let savedCount = 0;
+                if (savedRes.data.success) {
+                    savedCount = savedRes.data.data.length;
+                }
+
+                // Process Analytics for trends
+                let trend = [];
+                let responseRate = 0;
+                let successRate = 0;
+                if (analyticsRes.data.success) {
+                    trend = analyticsRes.data.data.monthly_trend || [];
+                    responseRate = analyticsRes.data.data.applications.response_rate || 0;
+                    successRate = analyticsRes.data.data.applications.success_rate || 0;
+                }
+
+                const finalStats = { 
+                    applications: appCount, 
+                    shortlisted: shortCount, 
+                    views: viewCount,
+                    saved: savedCount,
+                    applied: appliedCount,
+                    viewed: viewedCount,
+                    rejected: rejectedCount,
+                    hired: hiredCount,
+                    responseRate,
+                    successRate,
+                    profileCompleteness
+                };
+                
+                console.log("CandidateDashboard: Final Stats:", finalStats);
+                
+                setStats(finalStats);
+                setRecentViewers(viewers);
+                setMonthlyTrend(trend);
+
+            } catch (error: any) {
+                console.error("=== CandidateDashboard: ERROR ===");
+                console.error("CandidateDashboard: Failed to fetch dashboard data");
+                console.error("CandidateDashboard: Error message:", error.message);
+                console.error("CandidateDashboard: Error response:", error.response?.data);
+                console.error("CandidateDashboard: Error status:", error.response?.status);
+                console.error("CandidateDashboard: Full error:", error);
             }
         };
 
         if (user) {
+            console.log("CandidateDashboard: User exists, fetching data...");
             fetchDashboardData();
+        } else {
+            console.warn("CandidateDashboard: No user found, skipping data fetch");
         }
     }, [user]);
 
     const handleLogout = () => {
+        console.log("CandidateDashboard: Logout button clicked");
+        console.log("CandidateDashboard: Calling logout function");
         logout();
+        console.log("CandidateDashboard: Navigating to login page");
         navigate('/login');
     };
 
@@ -142,36 +221,299 @@ const CandidateDashboard = () => {
                         </div>
                     </motion.div>
 
-                    {/* Stats Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-                            <div className="p-4 bg-blue-50 text-blue-600 rounded-xl">
-                                <FileText className="w-8 h-8" />
-                            </div>
-                            <div>
-                                <p className="text-gray-500 font-medium">Applications</p>
-                                <h3 className="text-3xl font-bold text-gray-900">{stats.applications}</h3>
+                    {/* Enhanced Stats Grid with Gradients */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        {/* Total Applications */}
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }} 
+                            animate={{ opacity: 1, y: 0 }} 
+                            transition={{ delay: 0.2 }}
+                            className="relative bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-3xl shadow-lg overflow-hidden group hover:shadow-2xl transition-all"
+                        >
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-8 -mt-8" />
+                            <div className="relative z-10">
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                                        <FileText className="w-6 h-6 text-white" />
+                                    </div>
+                                    <span className="text-white/80 text-sm font-semibold">Total</span>
+                                </div>
+                                <h3 className="text-4xl font-bold text-white mb-1">{stats.applications}</h3>
+                                <p className="text-blue-100 text-sm font-medium">Applications</p>
                             </div>
                         </motion.div>
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-                            <div className="p-4 bg-purple-50 text-purple-600 rounded-xl">
-                                <TrendingUp className="w-8 h-8" />
-                            </div>
-                            <div>
-                                <p className="text-gray-500 font-medium">Shortlisted</p>
-                                <h3 className="text-3xl font-bold text-gray-900">{stats.shortlisted}</h3>
+
+                        {/* Shortlisted */}
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }} 
+                            animate={{ opacity: 1, y: 0 }} 
+                            transition={{ delay: 0.3 }}
+                            className="relative bg-gradient-to-br from-green-500 to-emerald-600 p-6 rounded-3xl shadow-lg overflow-hidden group hover:shadow-2xl transition-all"
+                        >
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-8 -mt-8" />
+                            <div className="relative z-10">
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                                        <CheckCircle2 className="w-6 h-6 text-white" />
+                                    </div>
+                                    <div className="flex items-center gap-1 text-white">
+                                        <ArrowUpRight className="w-4 h-4" />
+                                        <span className="text-sm font-bold">+{stats.hired}</span>
+                                    </div>
+                                </div>
+                                <h3 className="text-4xl font-bold text-white mb-1">{stats.shortlisted}</h3>
+                                <p className="text-green-100 text-sm font-medium">Shortlisted</p>
                             </div>
                         </motion.div>
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-                            <div className="p-4 bg-green-50 text-green-600 rounded-xl">
-                                <User className="w-8 h-8" />
+
+                        {/* Profile Views */}
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }} 
+                            animate={{ opacity: 1, y: 0 }} 
+                            transition={{ delay: 0.4 }}
+                            className="relative bg-gradient-to-br from-purple-500 to-pink-600 p-6 rounded-3xl shadow-lg overflow-hidden group hover:shadow-2xl transition-all"
+                        >
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-8 -mt-8" />
+                            <div className="relative z-10">
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                                        <Eye className="w-6 h-6 text-white" />
+                                    </div>
+                                    <Activity className="w-5 h-5 text-white/80" />
+                                </div>
+                                <h3 className="text-4xl font-bold text-white mb-1">{stats.views}</h3>
+                                <p className="text-purple-100 text-sm font-medium">Profile Views</p>
                             </div>
-                            <div>
-                                <p className="text-gray-500 font-medium">Profile Views</p>
-                                <h3 className="text-3xl font-bold text-gray-900">{stats.views}</h3>
+                        </motion.div>
+
+                        {/* Saved Jobs */}
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }} 
+                            animate={{ opacity: 1, y: 0 }} 
+                            transition={{ delay: 0.5 }}
+                            className="relative bg-gradient-to-br from-orange-500 to-red-600 p-6 rounded-3xl shadow-lg overflow-hidden group hover:shadow-2xl transition-all"
+                        >
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-8 -mt-8" />
+                            <div className="relative z-10">
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                                        <Bookmark className="w-6 h-6 text-white" />
+                                    </div>
+                                    <Star className="w-5 h-5 text-white/80" />
+                                </div>
+                                <h3 className="text-4xl font-bold text-white mb-1">{stats.saved}</h3>
+                                <p className="text-orange-100 text-sm font-medium">Saved Jobs</p>
                             </div>
                         </motion.div>
                     </div>
+
+                    {/* Performance Metrics Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        {/* Success Rate */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.6 }}
+                            className="bg-white p-6 rounded-2xl border-2 border-gray-100 shadow-sm hover:shadow-lg transition-all"
+                        >
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl">
+                                        <Target className="w-5 h-5 text-green-600" />
+                                    </div>
+                                    <span className="text-sm font-bold text-gray-700">Success Rate</span>
+                                </div>
+                                <ArrowUpRight className="w-5 h-5 text-green-500" />
+                            </div>
+                            <div className="flex items-end gap-2">
+                                <h3 className="text-4xl font-bold text-gray-900">{stats.successRate}%</h3>
+                                <span className="text-sm text-gray-500 mb-1">conversion</span>
+                            </div>
+                            <div className="w-full bg-gray-100 rounded-full h-2 mt-4">
+                                <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${stats.successRate}%` }}
+                                    transition={{ duration: 1, delay: 0.8 }}
+                                    className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full"
+                                />
+                            </div>
+                        </motion.div>
+
+                        {/* Response Rate */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.7 }}
+                            className="bg-white p-6 rounded-2xl border-2 border-gray-100 shadow-sm hover:shadow-lg transition-all"
+                        >
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl">
+                                        <Activity className="w-5 h-5 text-blue-600" />
+                                    </div>
+                                    <span className="text-sm font-bold text-gray-700">Response Rate</span>
+                                </div>
+                                <TrendingUp className="w-5 h-5 text-blue-500" />
+                            </div>
+                            <div className="flex items-end gap-2">
+                                <h3 className="text-4xl font-bold text-gray-900">{stats.responseRate}%</h3>
+                                <span className="text-sm text-gray-500 mb-1">replies</span>
+                            </div>
+                            <div className="w-full bg-gray-100 rounded-full h-2 mt-4">
+                                <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${stats.responseRate}%` }}
+                                    transition={{ duration: 1, delay: 0.9 }}
+                                    className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full"
+                                />
+                            </div>
+                        </motion.div>
+
+                        {/* Profile Completeness */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.8 }}
+                            className="bg-white p-6 rounded-2xl border-2 border-gray-100 shadow-sm hover:shadow-lg transition-all"
+                        >
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl">
+                                        <Award className="w-5 h-5 text-purple-600" />
+                                    </div>
+                                    <span className="text-sm font-bold text-gray-700">Profile Strength</span>
+                                </div>
+                                <Zap className="w-5 h-5 text-purple-500" />
+                            </div>
+                            <div className="flex items-end gap-2">
+                                <h3 className="text-4xl font-bold text-gray-900">{stats.profileCompleteness}%</h3>
+                                <span className="text-sm text-gray-500 mb-1">complete</span>
+                            </div>
+                            <div className="w-full bg-gray-100 rounded-full h-2 mt-4">
+                                <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${stats.profileCompleteness}%` }}
+                                    transition={{ duration: 1, delay: 1 }}
+                                    className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full"
+                                />
+                            </div>
+                        </motion.div>
+                    </div>
+
+                    {/* Application Status Breakdown with Mini Graph */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.9 }}
+                        className="bg-white p-6 rounded-2xl border-2 border-gray-100 shadow-sm mb-8"
+                    >
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                <BarChart3 className="w-6 h-6 text-blue-600" />
+                                Application Status Breakdown
+                            </h3>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                            {/* Applied */}
+                            <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Clock className="w-4 h-4 text-gray-500" />
+                                    <span className="text-xs font-semibold text-gray-600">Applied</span>
+                                </div>
+                                <p className="text-2xl font-bold text-gray-900">{stats.applied}</p>
+                            </div>
+
+                            {/* Viewed */}
+                            <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Eye className="w-4 h-4 text-blue-500" />
+                                    <span className="text-xs font-semibold text-blue-600">Viewed</span>
+                                </div>
+                                <p className="text-2xl font-bold text-blue-900">{stats.viewed}</p>
+                            </div>
+
+                            {/* Shortlisted */}
+                            <div className="bg-green-50 p-4 rounded-xl border border-green-200">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                    <span className="text-xs font-semibold text-green-600">Shortlisted</span>
+                                </div>
+                                <p className="text-2xl font-bold text-green-900">{stats.shortlisted}</p>
+                            </div>
+
+                            {/* Rejected */}
+                            <div className="bg-red-50 p-4 rounded-xl border border-red-200">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <XCircle className="w-4 h-4 text-red-500" />
+                                    <span className="text-xs font-semibold text-red-600">Rejected</span>
+                                </div>
+                                <p className="text-2xl font-bold text-red-900">{stats.rejected}</p>
+                            </div>
+
+                            {/* Hired */}
+                            <div className="bg-purple-50 p-4 rounded-xl border border-purple-200">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Trophy className="w-4 h-4 text-purple-500" />
+                                    <span className="text-xs font-semibold text-purple-600">Hired</span>
+                                </div>
+                                <p className="text-2xl font-bold text-purple-900">{stats.hired}</p>
+                            </div>
+                        </div>
+
+                        {/* Mini Bar Chart */}
+                        {stats.applications > 0 && (
+                            <div className="mt-6 pt-6 border-t border-gray-200">
+                                <div className="flex items-end justify-between gap-2 h-32">
+                                    <div className="flex-1 flex flex-col items-center">
+                                        <motion.div
+                                            initial={{ height: 0 }}
+                                            animate={{ height: `${(stats.applied / stats.applications) * 100}%` }}
+                                            transition={{ duration: 0.8, delay: 1 }}
+                                            className="w-full bg-gradient-to-t from-gray-400 to-gray-300 rounded-t-lg min-h-[20px]"
+                                        />
+                                        <span className="text-xs text-gray-600 mt-2 font-semibold">{((stats.applied / stats.applications) * 100).toFixed(0)}%</span>
+                                    </div>
+                                    <div className="flex-1 flex flex-col items-center">
+                                        <motion.div
+                                            initial={{ height: 0 }}
+                                            animate={{ height: `${(stats.viewed / stats.applications) * 100}%` }}
+                                            transition={{ duration: 0.8, delay: 1.1 }}
+                                            className="w-full bg-gradient-to-t from-blue-500 to-blue-400 rounded-t-lg min-h-[20px]"
+                                        />
+                                        <span className="text-xs text-blue-600 mt-2 font-semibold">{((stats.viewed / stats.applications) * 100).toFixed(0)}%</span>
+                                    </div>
+                                    <div className="flex-1 flex flex-col items-center">
+                                        <motion.div
+                                            initial={{ height: 0 }}
+                                            animate={{ height: `${(stats.shortlisted / stats.applications) * 100}%` }}
+                                            transition={{ duration: 0.8, delay: 1.2 }}
+                                            className="w-full bg-gradient-to-t from-green-500 to-green-400 rounded-t-lg min-h-[20px]"
+                                        />
+                                        <span className="text-xs text-green-600 mt-2 font-semibold">{((stats.shortlisted / stats.applications) * 100).toFixed(0)}%</span>
+                                    </div>
+                                    <div className="flex-1 flex flex-col items-center">
+                                        <motion.div
+                                            initial={{ height: 0 }}
+                                            animate={{ height: `${(stats.rejected / stats.applications) * 100}%` }}
+                                            transition={{ duration: 0.8, delay: 1.3 }}
+                                            className="w-full bg-gradient-to-t from-red-500 to-red-400 rounded-t-lg min-h-[20px]"
+                                        />
+                                        <span className="text-xs text-red-600 mt-2 font-semibold">{((stats.rejected / stats.applications) * 100).toFixed(0)}%</span>
+                                    </div>
+                                    <div className="flex-1 flex flex-col items-center">
+                                        <motion.div
+                                            initial={{ height: 0 }}
+                                            animate={{ height: `${(stats.hired / stats.applications) * 100}%` }}
+                                            transition={{ duration: 0.8, delay: 1.4 }}
+                                            className="w-full bg-gradient-to-t from-purple-500 to-purple-400 rounded-t-lg min-h-[20px]"
+                                        />
+                                        <span className="text-xs text-purple-600 mt-2 font-semibold">{((stats.hired / stats.applications) * 100).toFixed(0)}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </motion.div>
 
                     {/* Quick Actions */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">

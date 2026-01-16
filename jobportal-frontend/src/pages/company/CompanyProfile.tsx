@@ -33,7 +33,7 @@ const CompanyProfile = () => {
     const fetchProfile = async () => {
         try {
             const response = await api.get('/company/profile.php');
-            if (response.data.status === 'success') {
+            if (response.data.success) {
                 // Pre-fill data if exists
                 const data = response.data.data;
                 setProfile({

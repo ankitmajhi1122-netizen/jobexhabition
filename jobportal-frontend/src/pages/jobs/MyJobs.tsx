@@ -31,7 +31,7 @@ const MyJobs = () => {
     const fetchMyJobs = async () => {
         try {
             const response = await api.get('/company/my_jobs.php');
-            if (response.data.status === 'success') {
+            if (response.data.success) {
                 setJobs(response.data.data);
             } else {
                 // Fallback if data format differs or empty

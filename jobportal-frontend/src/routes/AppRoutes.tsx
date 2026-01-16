@@ -14,11 +14,14 @@ import MyJobs from '../pages/jobs/MyJobs';
 
 import CandidateProfile from '../pages/candidate/CandidateProfile';
 import MyApplications from '../pages/candidate/MyApplications';
+import MyApplicationsNew from '../pages/candidate/MyApplicationsNew';
 import UploadResume from '../pages/candidate/UploadResume';
 import SavedJobs from '../pages/candidate/SavedJobs';
 import Achievements from '../pages/candidate/Achievements';
 import Analytics from '../pages/candidate/Analytics';
 import ResumeBuilder from '../pages/candidate/ResumeBuilder';
+import CoverLetters from '../pages/candidate/CoverLetters';
+import JobAlerts from '../pages/candidate/JobAlerts';
 
 import CompanyProfile from '../pages/company/CompanyProfile';
 import JobApplicants from '../pages/company/JobApplicants';
@@ -31,6 +34,7 @@ import AdminDashboard from '../pages/admin/AdminDashboard';
 import CompanyDashboard from '../pages/company/CompanyDashboard';
 import ConsultancyDashboard from '../pages/consultancy/ConsultancyDashboard';
 import CandidateDashboard from '../pages/candidate/CandidateDashboard';
+import DashboardNew from '../pages/candidate/DashboardNew';
 
 // HOC
 import ProtectedRoute from './ProtectedRoute';
@@ -149,7 +153,7 @@ const AppRoutes = () => {
                 path="/candidate/dashboard"
                 element={
                     <ProtectedRoute allowedRoles={[ROLES.CANDIDATE]}>
-                        <CandidateDashboard />
+                        <DashboardNew />
                     </ProtectedRoute>
                 }
             />
@@ -165,7 +169,7 @@ const AppRoutes = () => {
                 path="/candidate/applications"
                 element={
                     <ProtectedRoute allowedRoles={[ROLES.CANDIDATE]}>
-                        <MyApplications />
+                        <MyApplicationsNew />
                     </ProtectedRoute>
                 }
             />
@@ -206,6 +210,22 @@ const AppRoutes = () => {
                 element={
                     <ProtectedRoute allowedRoles={[ROLES.CANDIDATE]}>
                         <ResumeBuilder />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/candidate/cover-letters"
+                element={
+                    <ProtectedRoute allowedRoles={[ROLES.CANDIDATE]}>
+                        <CoverLetters />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/candidate/job-alerts"
+                element={
+                    <ProtectedRoute allowedRoles={[ROLES.CANDIDATE]}>
+                        <JobAlerts />
                     </ProtectedRoute>
                 }
             />

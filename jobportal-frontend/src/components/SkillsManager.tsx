@@ -20,6 +20,7 @@ const SkillsManager = ({ onUpdate }: SkillsManagerProps) => {
     const [loading, setLoading] = useState(true);
     const [isAdding, setIsAdding] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string>('');
     const [formData, setFormData] = useState({
         skill_name: '',
         proficiency: 'intermediate' as const,
@@ -36,7 +37,7 @@ const SkillsManager = ({ onUpdate }: SkillsManagerProps) => {
         try {
             console.log("SkillsManager: Fetching skills");
             const response = await api.get('/candidate/skills.php');
-            if (response.data.status === 'success') {
+            if (response.data.success) {
                 setSkills(response.data.data);
                 console.log(`SkillsManager: Loaded ${response.data.data.length} skills`);
             }
@@ -50,10 +51,11 @@ const SkillsManager = ({ onUpdate }: SkillsManagerProps) => {
     const handleAdd = async () => {
         if (!formData.skill_name.trim()) return;
 
+        setErrorMessage(''); // Clear previous errors
         console.log("SkillsManager: Adding skill", formData);
         try {
             const response = await api.post('/candidate/skills.php', formData);
-            if (response.data.status === 'success') {
+            if (response.data.success) {
                 console.log("SkillsManager: Skill added successfully");
                 await fetchSkills(); // Refresh the list
                 setFormData({ skill_name: '', proficiency: 'intermediate', years_of_experience: 0, is_primary: false });
@@ -62,8 +64,17 @@ const SkillsManager = ({ onUpdate }: SkillsManagerProps) => {
                     onUpdate(); // Notify parent to refresh
                 }
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('SkillsManager: Failed to add skill', error);
+            
+            // Handle specific error cases
+            if (error.response?.status === 409) {
+                setErrorMessage(`The skill "${formData.skill_name}" already exists in your profile.`);
+            } else if (error.response?.data?.message) {
+                setErrorMessage(error.response.data.message);
+            } else {
+                setErrorMessage('Failed to add skill. Please try again.');
+            }
         }
     };
 
@@ -142,6 +153,20 @@ const SkillsManager = ({ onUpdate }: SkillsManagerProps) => {
                         exit={{ opacity: 0, height: 0 }}
                         className="bg-blue-50 rounded-xl p-4 border border-blue-200"
                     >
+                        {errorMessage && (
+                            <div className="mb-4 p-3 bg-red-100 border border-red-300 rounded-lg flex items-start gap-2">
+                                <X className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                                <div className="flex-1">
+                                    <p className="text-sm text-red-800 font-medium">{errorMessage}</p>
+                                </div>
+                                <button
+                                    onClick={() => setErrorMessage('')}
+                                    className="text-red-600 hover:text-red-800"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                        )}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input
                                 type="text"
@@ -188,6 +213,7 @@ const SkillsManager = ({ onUpdate }: SkillsManagerProps) => {
                             <button
                                 onClick={() => {
                                     setIsAdding(false);
+                                    setErrorMessage('');
                                     setFormData({ skill_name: '', proficiency: 'intermediate', years_of_experience: 0, is_primary: false });
                                 }}
                                 className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-medium"

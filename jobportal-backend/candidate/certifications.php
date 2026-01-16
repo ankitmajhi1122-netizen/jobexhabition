@@ -17,7 +17,7 @@ try {
         // Fetch all certifications
         $sql = "SELECT * FROM certifications 
                 WHERE candidate_id = ? 
-                ORDER BY issue_date DESC NULLS LAST";
+                ORDER BY issue_date IS NULL, issue_date DESC";
         
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$user['id']]);

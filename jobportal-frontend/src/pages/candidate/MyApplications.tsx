@@ -34,26 +34,77 @@ const MyApplications = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        console.log("MyApplications: Component mounted, user:", user);
+        console.log("=== MyApplications: Component Mounted ===");
+        console.log("MyApplications: User data:", JSON.stringify(user, null, 2));
+        console.log("MyApplications: User ID:", user?.id);
+        console.log("MyApplications: User Name:", user?.name);
+        console.log("MyApplications: User Email:", user?.email);
+        console.log("MyApplications: Timestamp:", new Date().toISOString());
         fetchApplications();
     }, []);
 
     const fetchApplications = async () => {
+        console.log("=== MyApplications: Fetching Applications ===");
+        console.log("MyApplications: API endpoint: /candidate/applications.php");
+        console.log("MyApplications: Request started at:", new Date().toISOString());
+        
         try {
             const response = await api.get('/candidate/applications.php');
-            console.log('Fetched Applications:', response.data);
-            if (response.data.success) { // Checked 'success' boolean
-                setApplications(response.data.data);
+            
+            console.log("=== MyApplications: Response Received ===");
+            console.log("MyApplications: HTTP Status:", response.status);
+            console.log("MyApplications: Response headers:", response.headers);
+            console.log("MyApplications: Full response data:", JSON.stringify(response.data, null, 2));
+            console.log("MyApplications: Success flag:", response.data.success);
+            console.log("MyApplications: Message:", response.data.message);
+            
+            if (response.data.success) {
+                const apps = response.data.data;
+                console.log("MyApplications: Applications count:", apps.length);
+                console.log("MyApplications: Applications array:", apps);
+                
+                // Log each application in detail
+                apps.forEach((app: Application, index: number) => {
+                    console.log(`MyApplications: Application ${index + 1}:`, {
+                        id: app.application_id,
+                        job_id: app.job_id,
+                        title: app.title,
+                        company: app.company_name,
+                        location: app.location,
+                        status: app.status,
+                        applied_at: app.applied_at,
+                        logo_url: app.logo_url
+                    });
+                });
+                
+                console.log("MyApplications: Setting applications state...");
+                setApplications(apps);
+                console.log("MyApplications: State updated successfully");
+            } else {
+                console.warn("MyApplications: Response success=false");
+                console.warn("MyApplications: Error message:", response.data.message);
             }
-        } catch (error) {
-            console.error('Failed to fetch applications', error);
+        } catch (error: any) {
+            console.error("=== MyApplications: ERROR ===");
+            console.error("MyApplications: Failed to fetch applications");
+            console.error("MyApplications: Error message:", error.message);
+            console.error("MyApplications: Error response:", error.response?.data);
+            console.error("MyApplications: Error status:", error.response?.status);
+            console.error("MyApplications: Error headers:", error.response?.headers);
+            console.error("MyApplications: Full error object:", error);
+            console.error("MyApplications: Stack trace:", error.stack);
         } finally {
+            console.log("MyApplications: Setting loading to false");
             setLoading(false);
+            console.log("MyApplications: Fetch process completed");
         }
     };
 
     const handleLogout = () => {
+        console.log("MyApplications: Logout initiated");
+        console.log("MyApplications: Current user:", user?.name);
         logout();
+        console.log("MyApplications: Navigating to login");
         navigate('/login');
     };
 

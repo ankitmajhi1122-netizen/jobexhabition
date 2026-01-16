@@ -25,7 +25,7 @@ const CompanyDashboard = () => {
     const fetchStats = async () => {
         try {
             const response = await api.get('/company/dashboard_stats.php');
-            if (response.data.status === 'success') {
+            if (response.data.success) {
                 setStats(response.data.data);
             }
         } catch (error) {

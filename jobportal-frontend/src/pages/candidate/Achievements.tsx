@@ -7,6 +7,7 @@ import {
     Trophy, Star, Award, Target, Zap, Bell, LogOut, Loader2,
     Briefcase, Lock, TrendingUp, CheckCircle2, LayoutDashboard
 } from 'lucide-react';
+import ModernNav from '../../components/ModernNav';
 
 interface Achievement {
     id: number;
@@ -41,34 +42,102 @@ const Achievements = () => {
     const [selectedCategory, setSelectedCategory] = useState('all');
 
     useEffect(() => {
-        console.log("Achievements: Component mounted, fetching achievements");
+        console.log("=== Achievements: Component Mounted ===");
+        console.log("Achievements: User data:", JSON.stringify(user, null, 2));
+        console.log("Achievements: User ID:", user?.id);
+        console.log("Achievements: User Name:", user?.name);
+        console.log("Achievements: Timestamp:", new Date().toISOString());
+        console.log("Achievements: Initiating fetch...");
         fetchAchievements();
     }, []);
 
     const fetchAchievements = async () => {
+        console.log("=== Achievements: Fetching Data ===");
+        console.log("Achievements: API endpoint: /candidate/achievements.php");
+        console.log("Achievements: Request started at:", new Date().toISOString());
+        
         try {
-            console.log("Achievements: Fetching from API");
             const response = await api.get('/candidate/achievements.php');
-            console.log("Achievements: Response received", response.data);
+            
+            console.log("=== Achievements: Response Received ===");
+            console.log("Achievements: HTTP Status:", response.status);
+            console.log("Achievements: Response headers:", response.headers);
+            console.log("Achievements: Full response data:", JSON.stringify(response.data, null, 2));
+            console.log("Achievements: Success flag (boolean):", response.data.success);
+            console.log("Achievements: Message:", response.data.message);
 
-            if (response.data.status === 'success') {
-                setAchievements(response.data.data.achievements);
-                setRecentAchievements(response.data.data.recent_achievements);
-                setStats(response.data.data.stats);
-                console.log(`Achievements: Loaded ${response.data.data.achievements.length} achievements`);
-                console.log(`Achievements: Earned ${response.data.data.stats.earned_count} badges`);
-                console.log(`Achievements: Total points: ${response.data.data.stats.total_points}`);
+            if (response.data.success) {
+                const achievementsData = response.data.data.achievements;
+                const recentData = response.data.data.recent_achievements;
+                const statsData = response.data.data.stats;
+                
+                console.log("=== Achievements: Processing Data ===");
+                console.log("Achievements: Total achievements:", achievementsData.length);
+                console.log("Achievements: Recent achievements:", recentData.length);
+                console.log("Achievements: Stats:", statsData);
+                
+                // Log achievements by category
+                const categories = ['profile', 'applications', 'social', 'learning', 'milestone'];
+                categories.forEach(cat => {
+                    const catAchievements = achievementsData.filter((a: Achievement) => a.category === cat);
+                    const earnedInCat = catAchievements.filter((a: Achievement) => a.is_earned);
+                    console.log(`Achievements: Category '${cat}':`, {
+                        total: catAchievements.length,
+                        earned: earnedInCat.length,
+                        locked: catAchievements.length - earnedInCat.length
+                    });
+                });
+                
+                // Log each achievement in detail
+                achievementsData.forEach((achievement: Achievement, index: number) => {
+                    console.log(`Achievements: Achievement ${index + 1}:`, {
+                        id: achievement.id,
+                        name: achievement.name,
+                        category: achievement.category,
+                        points: achievement.points,
+                        is_earned: achievement.is_earned,
+                        earned_at: achievement.earned_at,
+                        icon: achievement.icon,
+                        description: achievement.description
+                    });
+                });
+                
+                console.log("Achievements: Setting state...");
+                setAchievements(achievementsData);
+                setRecentAchievements(recentData);
+                setStats(statsData);
+                
+                console.log("=== Achievements: State Updated ===");
+                console.log(`Achievements: Loaded ${achievementsData.length} total achievements`);
+                console.log(`Achievements: Earned ${statsData.earned_count} badges`);
+                console.log(`Achievements: Total points: ${statsData.total_points}`);
+                console.log(`Achievements: Completion: ${statsData.completion_percentage}%`);
+                console.log("Achievements: Recent achievements:", recentData.map((a: Achievement) => a.name));
+            } else {
+                console.warn("Achievements: Response status not success");
+                console.warn("Achievements: Error message:", response.data.message);
             }
-        } catch (error) {
-            console.error('Achievements: Failed to fetch', error);
+        } catch (error: any) {
+            console.error("=== Achievements: ERROR ===");
+            console.error('Achievements: Failed to fetch');
+            console.error("Achievements: Error message:", error.message);
+            console.error("Achievements: Error response:", error.response?.data);
+            console.error("Achievements: Error status:", error.response?.status);
+            console.error("Achievements: Error headers:", error.response?.headers);
+            console.error("Achievements: Full error object:", error);
+            console.error("Achievements: Stack trace:", error.stack);
         } finally {
+            console.log("Achievements: Setting loading to false");
             setLoading(false);
+            console.log("Achievements: Fetch process completed");
         }
     };
 
     const handleLogout = () => {
-        console.log("Achievements: User logging out");
+        console.log("Achievements: Logout initiated");
+        console.log("Achievements: Current user:", user?.name);
         logout();
+        console.log("Achievements: Navigating to login");
         navigate('/login');
     };
 
@@ -97,43 +166,8 @@ const Achievements = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 font-sans">
-            {/* Navigation */}
-            <nav className="fixed top-0 w-full bg-white/90 backdrop-blur-md border-b border-gray-100 z-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
-                        <div className="flex items-center gap-3">
-                            <div className="bg-blue-600 p-2 rounded-lg shadow-lg">
-                                <Briefcase className="h-5 w-5 text-white" />
-                            </div>
-                            <span className="text-xl font-bold">JobPortal</span>
-                        </div>
-
-                        <div className="hidden md:flex items-center space-x-8">
-                            <Link to="/candidate/dashboard" className="text-gray-500 hover:text-blue-600 font-medium transition-colors">Dashboard</Link>
-                            <Link to="/jobs" className="text-gray-500 hover:text-blue-600 font-medium transition-colors">Find Jobs</Link>
-                            <Link to="/candidate/applications" className="text-gray-500 hover:text-blue-600 font-medium transition-colors">Applications</Link>
-                            <Link to="/candidate/achievements" className="text-blue-600 font-bold">Achievements</Link>
-                            <Link to="/candidate/profile" className="text-gray-500 hover:text-blue-600 font-medium transition-colors">Profile</Link>
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                            <button className="p-2 text-gray-400 hover:text-blue-600 transition-colors relative rounded-full hover:bg-gray-50">
-                                <Bell className="w-5 h-5" />
-                            </button>
-                            <div 
-                                className="h-9 w-9 bg-gradient-to-tr from-blue-100 to-blue-50 rounded-full flex items-center justify-center text-blue-700 font-bold border border-blue-200 shadow-sm cursor-pointer"
-                                onClick={() => navigate('/candidate/profile')}
-                            >
-                                {user?.name?.charAt(0) || 'U'}
-                            </div>
-                            <button onClick={handleLogout} className="text-gray-400 hover:text-red-500 transition-colors">
-                                <LogOut className="w-5 h-5" />
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+            <ModernNav activeTab="dashboard" />
 
             {/* Main Content */}
             <main className="pt-24 px-4 pb-12 max-w-7xl mx-auto">
@@ -235,8 +269,11 @@ const Achievements = () => {
                         <button
                             key={cat.id}
                             onClick={() => {
-                                console.log(`Achievements: Filter changed to ${cat.id}`);
+                                console.log(`Achievements: Filter button clicked - ${cat.name}`);
+                                console.log(`Achievements: Previous category: ${selectedCategory}`);
+                                console.log(`Achievements: New category: ${cat.id}`);
                                 setSelectedCategory(cat.id);
+                                console.log(`Achievements: Category filter updated`);
                             }}
                             className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all whitespace-nowrap ${
                                 selectedCategory === cat.id

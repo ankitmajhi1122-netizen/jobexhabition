@@ -11,7 +11,7 @@ import {
     User, Mail, Phone, MapPin, Briefcase, GraduationCap,
     Code, Award, Save, Loader2, CheckCircle2, AlertCircle,
     LayoutDashboard, LogOut, FileText, Upload, ChevronRight,
-    Sparkles, Target, Zap, Link as LinkIcon, DollarSign
+    Sparkles, Target, Zap, Link as LinkIcon, DollarSign, Camera
 } from 'lucide-react';
 
 const CandidateProfile = () => {
@@ -39,6 +39,8 @@ const CandidateProfile = () => {
 
     const [resumeFile, setResumeFile] = useState<File | null>(null);
     const [uploadingResume, setUploadingResume] = useState(false);
+    const [photoFile, setPhotoFile] = useState<File | null>(null);
+    const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
     useEffect(() => {
         fetchProfile();
@@ -96,6 +98,39 @@ const CandidateProfile = () => {
             setMessage('Failed to upload resume.');
         } finally {
             setUploadingResume(false);
+        }
+    };
+
+    const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setPhotoFile(e.target.files[0]);
+        }
+    };
+
+    const handlePhotoUpload = async () => {
+        if (!photoFile) return;
+        setUploadingPhoto(true);
+        setMessage('');
+        console.log("CandidateProfile: Uploading photo...", photoFile.name);
+
+        const formData = new FormData();
+        formData.append('photo', photoFile);
+
+        try {
+            const res = await api.post('/candidate/photo_upload.php', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            if (res.data.status === 'success') {
+                console.log("CandidateProfile: Photo uploaded successfully", res.data);
+                setMessage('Photo uploaded successfully!');
+                setProfile(prev => ({ ...prev, photo_url: res.data.data.url }));
+                setPhotoFile(null);
+            }
+        } catch (error) {
+            console.error("CandidateProfile: Photo upload failed", error);
+            setMessage('Failed to upload photo.');
+        } finally {
+            setUploadingPhoto(false);
         }
     };
 
@@ -256,6 +291,89 @@ const CandidateProfile = () => {
 
                     {/* Left Sidebar (Sticky) */}
                     <div className="lg:col-span-4 space-y-8">
+                        {/* Profile Photo Card */}
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 overflow-hidden relative"
+                        >
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-50 rounded-bl-[100px] -mr-8 -mt-8 z-0"></div>
+                            <div className="relative z-10">
+                                <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                                    <div className="p-2 bg-purple-50 text-purple-600 rounded-xl">
+                                        <Camera className="w-6 h-6" />
+                                    </div>
+                                    Profile Photo
+                                </h3>
+
+                                <div className="space-y-6">
+                                    <div className="flex justify-center mb-6">
+                                        {profile.photo_url ? (
+                                            <div className="relative group">
+                                                <img 
+                                                    src={profile.photo_url} 
+                                                    alt="Profile" 
+                                                    className="w-32 h-32 rounded-full object-cover border-4 border-purple-100 shadow-lg"
+                                                />
+                                                <div className="absolute inset-0 bg-black bg-opacity-40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                    <Camera className="w-8 h-8 text-white" />
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-100 to-purple-50 border-4 border-purple-100 shadow-lg flex items-center justify-center">
+                                                <User className="w-16 h-16 text-purple-300" />
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div>
+                                        <label className="block w-full cursor-pointer group">
+                                            <div className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-purple-200 rounded-2xl bg-purple-50/30 hover:bg-purple-50/80 transition-all duration-300 group-hover:border-purple-400">
+                                                {uploadingPhoto ? (
+                                                    <Loader2 className="w-8 h-8 text-purple-500 animate-spin" />
+                                                ) : (
+                                                    <>
+                                                        <Camera className="w-8 h-8 text-purple-400 mb-2 group-hover:scale-110 transition-transform" />
+                                                        <p className="text-sm font-semibold text-purple-600">
+                                                            {photoFile ? photoFile.name : "Upload Photo"}
+                                                        </p>
+                                                        <p className="text-xs text-purple-400 mt-1">JPG, PNG max 2MB</p>
+                                                    </>
+                                                )}
+                                                <input
+                                                    type="file"
+                                                    className="hidden"
+                                                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                                                    onChange={handlePhotoChange}
+                                                />
+                                            </div>
+                                        </label>
+
+                                        {photoFile && (
+                                            <motion.button
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                onClick={handlePhotoUpload}
+                                                disabled={uploadingPhoto}
+                                                className="mt-4 w-full py-3 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-purple-600 shadow-lg shadow-purple-200 transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                            >
+                                                {uploadingPhoto ? (
+                                                    <>
+                                                        <Loader2 className="w-5 h-5 animate-spin" /> Uploading...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Upload className="w-5 h-5" /> Upload Photo
+                                                    </>
+                                                )}
+                                            </motion.button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+
                         {/* Resume Card */}
                         <motion.div
                             initial={{ opacity: 0, x: -20 }}

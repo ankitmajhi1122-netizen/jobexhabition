@@ -33,7 +33,7 @@ const EducationManager = ({ onUpdate }: { onUpdate?: () => void }) => {
         try {
             console.log("EducationManager: Fetching education");
             const response = await api.get('/candidate/education.php');
-            if (response.data.status === 'success') {
+            if (response.data.success) {
                 setEducation(response.data.data);
                 console.log(`EducationManager: Loaded ${response.data.data.length} records`);
             }

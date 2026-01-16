@@ -50,6 +50,17 @@ interface ResumeData {
         issue_date: string;
         credential_id: string;
     }>;
+    projects?: Array<{
+        project_name: string;
+        description: string;
+        role: string;
+        technologies_used: string;
+        project_url: string;
+        github_url: string;
+        start_date: string;
+        end_date: string | null;
+        is_ongoing: boolean;
+    }>;
 }
 
 const ResumeBuilder = () => {
@@ -73,8 +84,10 @@ const ResumeBuilder = () => {
                 api.get('/candidate/education.php')
             ]);
 
-            // Try to fetch certifications, but don't fail if it errors
+            // Try to fetch certifications and projects, but don't fail if they error
             let certificationsData = [];
+            let projectsData = [];
+            
             try {
                 const certifications = await api.get('/candidate/certifications.php');
                 certificationsData = certifications.data.data || [];
@@ -82,12 +95,20 @@ const ResumeBuilder = () => {
                 console.log("ResumeBuilder: Certifications not available yet");
             }
 
+            try {
+                const projects = await api.get('/candidate/projects.php');
+                projectsData = projects.data.data || [];
+            } catch (projectError) {
+                console.log("ResumeBuilder: Projects not available yet");
+            }
+
             setResumeData({
                 profile: profile.data.data,
                 skills: skills.data.data || [],
                 work_experience: experience.data.data || [],
                 education: education.data.data || [],
-                certifications: certificationsData
+                certifications: certificationsData,
+                projects: projectsData
             });
 
             console.log("ResumeBuilder: Data loaded successfully");
@@ -136,7 +157,7 @@ const ResumeBuilder = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-100">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
             {/* Action Bar - Hide on print */}
             <div className="bg-white border-b border-gray-200 p-4 print:hidden sticky top-0 z-50">
                 <div className="max-w-5xl mx-auto flex items-center justify-between">

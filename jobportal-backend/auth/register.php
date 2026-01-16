@@ -3,6 +3,9 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/mailer.php';
 require_once __DIR__ . '/../utils/functions.php';
 
+handleCors();
+
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     sendError('Method not allowed', 405);
 }
@@ -63,6 +66,10 @@ try {
         
         $stmt = $pdo->prepare("INSERT INTO candidates (user_id, full_name, phone) VALUES (?, ?, ?)");
         $stmt->execute([$userId, $fullName, $phone]);
+        
+        // Calculate initial profile completeness
+        require_once __DIR__ . '/../candidate/profile.php';
+        updateProfileCompleteness($pdo, $userId);
 
     } elseif ($role === 'company' || $role === 'consultancy') {
         $companyName = sanitize($extra_data['company_name'] ?? '');
