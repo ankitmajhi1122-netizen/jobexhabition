@@ -1,0 +1,13 @@
+{
+    "name": "jobexhibition/backend",
+    "description": "Job Portal Backend",
+    "require": {
+        "php": ">=8.0",
+        "phpmailer/phpmailer": "^6.9"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    }
+}

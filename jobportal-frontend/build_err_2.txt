@@ -1,0 +1,24 @@
+﻿
+> jobportal-frontend@0.0.0 build
+> tsc -b && vite build
+
+src/api/auth.api_working.ts(1,23): error TS2307: Cannot find module './client' or its corresponding type declarations.
+src/api/auth.api_working.ts(10,8): error TS2307: Cannot find module '@/types' or its corresponding type declarations.
+src/api/client_working.ts(2,39): error TS2307: Cannot find module '@/types' or its corresponding type declarations.
+src/pages/candidate/CandidateDashboard.tsx(6,5): error TS6133: 'LayoutDashboard' is declared but its value is never read.
+src/pages/candidate/CandidateDashboard.tsx(7,39): error TS6133: 'MapPin' is declared but its value is never read.
+src/pages/candidate/CandidateDashboard.tsx(9,1): error TS6133: 'api' is declared but its value is never read.
+src/pages/candidate/CandidateDashboard.tsx(14,12): error TS6133: 'stats' is declared but its value is never read.
+src/pages/candidate/CandidateDashboard.tsx(14,19): error TS6133: 'setStats' is declared but its value is never read.
+src/pages/company/CompanyProfile.tsx(9,12): error TS6133: 'Mail' is declared but its value is never read.
+src/pages/company/JobApplicants.tsx(9,15): error TS6133: 'User' is declared but its value is never read.
+src/pages/company/JobApplicants.tsx(9,21): error TS6133: 'Download' is declared but its value is never read.
+src/pages/Home.tsx(12,5): error TS6133: 'Star' is declared but its value is never read.
+src/pages/jobs/JobDetails.tsx(6,5): error TS6133: 'CheckCircle2' is declared but its value is never read.
+src/pages/jobs/JobList.tsx(4,76): error TS6133: 'X' is declared but its value is never read.
+src/pages/jobs/MyJobs.tsx(9,5): error TS6133: 'MoreVertical' is declared but its value is never read.
+src/pages/jobs/MyJobs.tsx(9,33): error TS6133: 'Eye' is declared but its value is never read.
+src/pages/jobs/MyJobs.tsx(9,38): error TS6133: 'Filter' is declared but its value is never read.
+src/pages/jobs/MyJobs.tsx(28,12): error TS6133: 'error' is declared but its value is never read.
+src/pages/Login_working.tsx(5,25): error TS2307: Cannot find module '@/hooks/useAuth' or its corresponding type declarations.
+src/pages/Login_working.tsx(6,19): error TS2307: Cannot find module 'react-hot-toast' or its corresponding type declarations.

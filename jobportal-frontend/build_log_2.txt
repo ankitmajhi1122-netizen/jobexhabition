@@ -1,0 +1,12 @@
+
+> jobportal-frontend@0.0.0 build
+> tsc -b && vite build
+
+src/pages/admin/AdminDashboard.tsx(9,10): error TS1484: 'DashboardStats' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/pages/auth/RecruiterRegister.tsx(2,19): error TS1484: 'SubmitHandler' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/pages/auth/RecruiterRegister.tsx(4,29): error TS2307: Cannot find module '@hookform/resolvers/yup' or its corresponding type declarations.
+src/pages/auth/RecruiterRegister.tsx(8,5): error TS6133: 'Briefcase' is declared but its value is never read.
+src/pages/auth/RecruiterRegister.tsx(8,26): error TS6133: 'Upload' is declared but its value is never read.
+src/pages/auth/RecruiterRegister.tsx(51,60): error TS6133: 'watch' is declared but its value is never read.
+src/pages/candidate/CandidateDashboard.tsx(6,10): error TS1484: 'DashboardStats' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/pages/company/CompanyDashboard.tsx(7,10): error TS1484: 'DashboardStats' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
