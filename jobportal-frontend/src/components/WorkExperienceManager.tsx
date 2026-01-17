@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Edit2, Trash2, Save, X, Briefcase, Calendar, MapPin, Loader2 } from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, Briefcase, Calendar, MapPin, Loader2 } from 'lucide-react';
 import api from '../api/axios';
 
 interface WorkExperience {

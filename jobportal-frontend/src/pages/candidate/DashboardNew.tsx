@@ -4,10 +4,10 @@ import { useAuth } from '../../auth/AuthContext';
 import api from '../../api/axios';
 import { motion } from 'framer-motion';
 import {
-    Briefcase, FileText, Eye, TrendingUp, Search, Bell, LogOut,
-    ChevronRight, Calendar, MapPin, Building2, Clock, Target,
-    Award, BarChart3, Bookmark, Zap, ArrowUpRight, Star, Users,
-    CheckCircle2, Loader2, Menu, X
+    Briefcase, FileText, Eye, TrendingUp, Search, LogOut,
+    ChevronRight, Target,
+    Award, BarChart3, Bookmark, Zap, ArrowUpRight,
+    CheckCircle2, Loader2
 } from 'lucide-react';
 import NotificationBell from '../../components/NotificationBell';
 
@@ -21,9 +21,7 @@ const DashboardNew = () => {
         profileViews: 0,
         savedJobs: 0
     });
-    const [recentJobs, setRecentJobs] = useState([]);
     const [profileStrength, setProfileStrength] = useState(0);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         fetchDashboardData();

@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 import api from '../../api/axios';
-import { useAuth } from '../../auth/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import ModernNav from '../../components/ModernNav';
 import {
-    FileText, Plus, Edit2, Trash2, Star, StarOff, Loader2,
+    FileText, Plus, Edit2, Trash2, Star, Loader2,
     Save, X, CheckCircle, AlertCircle
 } from 'lucide-react';
 
@@ -19,8 +17,6 @@ interface CoverLetter {
 }
 
 const CoverLetters = () => {
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
     const [coverLetters, setCoverLetters] = useState<CoverLetter[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);

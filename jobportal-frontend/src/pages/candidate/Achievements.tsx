@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 import api from '../../api/axios';
-import { useAuth } from '../../auth/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-    Trophy, Star, Award, Target, Zap, Bell, LogOut, Loader2,
-    Briefcase, Lock, TrendingUp, CheckCircle2, LayoutDashboard
+    Trophy, Star, Award, Target, Zap, Loader2,
+    Briefcase, Lock, TrendingUp, CheckCircle2
 } from 'lucide-react';
 import ModernNav from '../../components/ModernNav';
 
@@ -28,8 +26,6 @@ interface AchievementStats {
 }
 
 const Achievements = () => {
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
     const [achievements, setAchievements] = useState<Achievement[]>([]);
     const [recentAchievements, setRecentAchievements] = useState<Achievement[]>([]);
     const [stats, setStats] = useState<AchievementStats>({
@@ -43,9 +39,6 @@ const Achievements = () => {
 
     useEffect(() => {
         console.log("=== Achievements: Component Mounted ===");
-        console.log("Achievements: User data:", JSON.stringify(user, null, 2));
-        console.log("Achievements: User ID:", user?.id);
-        console.log("Achievements: User Name:", user?.name);
         console.log("Achievements: Timestamp:", new Date().toISOString());
         console.log("Achievements: Initiating fetch...");
         fetchAchievements();
@@ -133,13 +126,6 @@ const Achievements = () => {
         }
     };
 
-    const handleLogout = () => {
-        console.log("Achievements: Logout initiated");
-        console.log("Achievements: Current user:", user?.name);
-        logout();
-        console.log("Achievements: Navigating to login");
-        navigate('/login');
-    };
 
     const categories = [
         { id: 'all', name: 'All', icon: <Star className="w-4 h-4" /> },

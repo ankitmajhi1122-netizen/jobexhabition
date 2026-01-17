@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import api from '../../api/axios';
-import { useAuth } from '../../auth/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Bookmark, MapPin, Building2, IndianRupee, Clock, Briefcase,
-    Trash2, ExternalLink, Bell, LogOut, Loader2, BookmarkCheck,
+    Trash2, Loader2, BookmarkCheck,
     FileText, ChevronRight, Calendar, AlertCircle
 } from 'lucide-react';
 import ModernNav from '../../components/ModernNav';
@@ -26,8 +25,6 @@ interface SavedJob {
 }
 
 const SavedJobs = () => {
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
     const [savedJobs, setSavedJobs] = useState<SavedJob[]>([]);
     const [loading, setLoading] = useState(true);
     const [removingJobId, setRemovingJobId] = useState<number | null>(null);
@@ -35,9 +32,6 @@ const SavedJobs = () => {
 
     useEffect(() => {
         console.log("=== SavedJobs: Component Mounted ===");
-        console.log("SavedJobs: User data:", JSON.stringify(user, null, 2));
-        console.log("SavedJobs: User ID:", user?.id);
-        console.log("SavedJobs: User Name:", user?.name);
         console.log("SavedJobs: Timestamp:", new Date().toISOString());
         console.log("SavedJobs: Initiating saved jobs fetch...");
         fetchSavedJobs();
@@ -150,13 +144,6 @@ const SavedJobs = () => {
         }
     };
 
-    const handleLogout = () => {
-        console.log("SavedJobs: Logout initiated");
-        console.log("SavedJobs: Current user:", user?.name);
-        logout();
-        console.log("SavedJobs: Navigating to login");
-        navigate('/login');
-    };
 
     if (loading) {
         return (

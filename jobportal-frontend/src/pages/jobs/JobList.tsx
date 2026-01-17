@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, MapPin, Briefcase, IndianRupee, Clock, Building2, Filter, Loader2, ArrowRight, Bookmark, Zap, TrendingUp, Star, Heart } from 'lucide-react';
+import { Search, MapPin, Briefcase, IndianRupee, Clock, Building2, Filter, Loader2, ArrowRight, Zap, TrendingUp, Star, Heart } from 'lucide-react';
 import api from '../../api/axios';
 import ModernNav from '../../components/ModernNav';
 
@@ -27,7 +27,6 @@ const JobList = () => {
     });
     const [showFilters, setShowFilters] = useState(false);
     const [savedJobs, setSavedJobs] = useState<number[]>([]);
-    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
     const fetchJobs = async () => {
         setLoading(true);

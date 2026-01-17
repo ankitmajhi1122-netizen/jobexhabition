@@ -13,7 +13,6 @@ import PostJob from '../pages/jobs/PostJob';
 import MyJobs from '../pages/jobs/MyJobs';
 
 import CandidateProfile from '../pages/candidate/CandidateProfile';
-import MyApplications from '../pages/candidate/MyApplications';
 import MyApplicationsNew from '../pages/candidate/MyApplicationsNew';
 import UploadResume from '../pages/candidate/UploadResume';
 import SavedJobs from '../pages/candidate/SavedJobs';
@@ -33,7 +32,6 @@ import Grievances from '../pages/admin/Grievances';
 import AdminDashboard from '../pages/admin/AdminDashboard';
 import CompanyDashboard from '../pages/company/CompanyDashboard';
 import ConsultancyDashboard from '../pages/consultancy/ConsultancyDashboard';
-import CandidateDashboard from '../pages/candidate/CandidateDashboard';
 import DashboardNew from '../pages/candidate/DashboardNew';
 
 // HOC

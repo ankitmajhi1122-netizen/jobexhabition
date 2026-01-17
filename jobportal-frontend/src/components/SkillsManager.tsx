@@ -239,7 +239,7 @@ const SkillsManager = ({ onUpdate }: SkillsManagerProps) => {
                                 <div className="flex items-center gap-2 mb-1">
                                     <h4 className="font-bold text-gray-900">{skill.skill_name}</h4>
                                     {skill.is_primary && (
-                                        <Award className="w-4 h-4 text-yellow-500" title="Primary Skill" />
+                                        <Award className="w-4 h-4 text-yellow-500" />
                                     )}
                                 </div>
                                 <div className="flex items-center gap-2">

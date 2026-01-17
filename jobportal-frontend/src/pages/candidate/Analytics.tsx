@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 import api from '../../api/axios';
-import { useAuth } from '../../auth/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     TrendingUp, FileText, Eye, CheckCircle, XCircle, Clock, Award,
-    Bell, LogOut, Loader2, Briefcase, BarChart3, PieChart, Activity
+    Loader2, Briefcase, BarChart3, PieChart, Activity
 } from 'lucide-react';
 import ModernNav from '../../components/ModernNav';
 
@@ -31,16 +29,11 @@ interface AnalyticsData {
 }
 
 const Analytics = () => {
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
     const [data, setData] = useState<AnalyticsData | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         console.log("=== Analytics: Component Mounted ===");
-        console.log("Analytics: User data:", JSON.stringify(user, null, 2));
-        console.log("Analytics: User ID:", user?.id);
-        console.log("Analytics: User Name:", user?.name);
         console.log("Analytics: Timestamp:", new Date().toISOString());
         console.log("Analytics: Initiating fetch...");
         fetchAnalytics();
@@ -89,13 +82,6 @@ const Analytics = () => {
         }
     };
 
-    const handleLogout = () => {
-        console.log("Analytics: Logout initiated");
-        console.log("Analytics: Current user:", user?.name);
-        logout();
-        console.log("Analytics: Navigating to login");
-        navigate('/login');
-    };
 
     if (loading) {
         return (

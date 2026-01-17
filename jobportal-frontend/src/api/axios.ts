@@ -13,8 +13,12 @@ const api = axios.create({
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
-        if (token) {
+        console.log('Request URL:', config.url);
+        if (token && !config.url?.includes('/auth/')) {
             config.headers.Authorization = `Bearer ${token}`;
+            console.log('Attaching token to request');
+        } else {
+            console.log('Skipping token attachment');
         }
         return config;
     },

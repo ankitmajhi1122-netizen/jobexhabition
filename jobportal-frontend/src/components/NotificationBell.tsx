@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Bell, X, Check, Loader2, ExternalLink } from 'lucide-react';
+import { Bell, X, Check, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../api/axios';

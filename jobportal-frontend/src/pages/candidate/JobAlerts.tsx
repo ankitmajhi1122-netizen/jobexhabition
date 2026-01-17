@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import api from '../../api/axios';
-import { useAuth } from '../../auth/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import ModernNav from '../../components/ModernNav';
 import {
@@ -25,8 +23,6 @@ interface JobAlert {
 }
 
 const JobAlerts = () => {
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
     const [alerts, setAlerts] = useState<JobAlert[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);

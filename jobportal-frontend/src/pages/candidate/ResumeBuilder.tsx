@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../auth/AuthContext';
 import api from '../../api/axios';
 import { 
     Download, Printer, Eye, FileText, Mail, Phone, MapPin, 
@@ -64,7 +63,6 @@ interface ResumeData {
 }
 
 const ResumeBuilder = () => {
-    const { user, logout } = useAuth();
     const navigate = useNavigate();
     const printRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(true);

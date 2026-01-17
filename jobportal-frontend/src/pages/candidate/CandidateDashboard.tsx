@@ -4,9 +4,9 @@ import { useAuth } from '../../auth/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-    Briefcase, FileText, User, Eye, CheckCircle2, XCircle, Clock,
-    LogOut, Bell, TrendingUp, Search, Bookmark, Trophy, BarChart3,
-    ArrowUpRight, ArrowDownRight, Zap, Target, Star, Award, Activity
+    Briefcase, FileText, Eye, CheckCircle2, XCircle, Clock,
+    LogOut, TrendingUp, Search, Bookmark, Trophy, BarChart3,
+    ArrowUpRight, Zap, Target, Star, Award, Activity
 } from 'lucide-react';
 import NotificationBell from '../../components/NotificationBell';
 
@@ -30,7 +30,6 @@ const CandidateDashboard = () => {
         profileCompleteness: 0
     });
     const [recentViewers, setRecentViewers] = useState<any[]>([]);
-    const [monthlyTrend, setMonthlyTrend] = useState<any[]>([]);
 
     useEffect(() => {
         console.log("=== CandidateDashboard: Component Mounted ===");
@@ -96,11 +95,9 @@ const CandidateDashboard = () => {
                 }
 
                 // Process Analytics for trends
-                let trend = [];
                 let responseRate = 0;
                 let successRate = 0;
                 if (analyticsRes.data.success) {
-                    trend = analyticsRes.data.data.monthly_trend || [];
                     responseRate = analyticsRes.data.data.applications.response_rate || 0;
                     successRate = analyticsRes.data.data.applications.success_rate || 0;
                 }
@@ -123,7 +120,6 @@ const CandidateDashboard = () => {
                 
                 setStats(finalStats);
                 setRecentViewers(viewers);
-                setMonthlyTrend(trend);
 
             } catch (error: any) {
                 console.error("=== CandidateDashboard: ERROR ===");

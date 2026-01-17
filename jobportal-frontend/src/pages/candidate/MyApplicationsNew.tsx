@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../auth/AuthContext';
 import api from '../../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Briefcase, Clock, Eye, CheckCircle2, XCircle, Calendar,
-    Building2, MapPin, IndianRupee, Filter, Search, LayoutGrid,
+    Building2, MapPin, IndianRupee, Search, LayoutGrid,
     List, TrendingUp, Loader2, AlertCircle, ChevronRight
 } from 'lucide-react';
 import ModernNav from '../../components/ModernNav';
@@ -23,7 +22,6 @@ interface Application {
 }
 
 const MyApplicationsNew = () => {
-    const { user } = useAuth();
     const navigate = useNavigate();
     const [applications, setApplications] = useState<Application[]>([]);
     const [loading, setLoading] = useState(true);
@@ -240,7 +238,6 @@ const MyApplicationsNew = () => {
                         ) : (
                             filteredApplications.map((app, index) => {
                                 const config = statusConfig[app.status as keyof typeof statusConfig];
-                                const Icon = config?.icon || Clock;
                                 return (
                                     <motion.div
                                         key={app.application_id}

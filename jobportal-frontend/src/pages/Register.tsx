@@ -20,6 +20,7 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
     const navigate = useNavigate();
 
     // Role specific fields
@@ -31,6 +32,7 @@ const Register = () => {
         e.preventDefault();
         setError('');
         setLoading(true);
+        console.log('Attempting registration with role:', role);
 
         const data: any = {};
         if (role === 'candidate') {
@@ -42,17 +44,25 @@ const Register = () => {
         }
 
         try {
-            await api.post('/auth/register.php', {
+            const response = await api.post('/auth/register.php', {
                 email,
                 password,
                 role,
                 data
             });
-            // Redirect to OTP Verify
-            navigate(`/verify-otp?email=${encodeURIComponent(email)}`);
+
+            console.log('Registration successful:', response.data);
+            setSuccess('Registration successful! Redirecting to verification...');
+
+            // Redirect to OTP Verify after a short delay
+            setTimeout(() => {
+                navigate(`/verify-otp?email=${encodeURIComponent(email)}`);
+            }, 1500);
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Registration failed');
-        } finally {
+            console.error('Registration full error:', err);
+            console.log('Error Status:', err.response?.status);
+            console.log('Error Data:', err.response?.data);
+            setError(err.response?.data?.message || `Registration failed: ${err.message}`);
             setLoading(false);
         }
     };
@@ -128,6 +138,17 @@ const Register = () => {
                             className="bg-red-50 text-red-600 p-4 rounded-lg mb-6 text-sm border border-red-100"
                         >
                             {error}
+                        </motion.div>
+                    )}
+
+                    {success && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="bg-green-50 text-green-600 p-4 rounded-lg mb-6 text-sm border border-green-100 flex items-center gap-2"
+                        >
+                            <CheckCircle2 className="w-5 h-5" />
+                            {success}
                         </motion.div>
                     )}
 

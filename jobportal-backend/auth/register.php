@@ -68,7 +68,8 @@ try {
         $stmt->execute([$userId, $fullName, $phone]);
         
         // Calculate initial profile completeness
-        require_once __DIR__ . '/../candidate/profile.php';
+        // Calculate initial profile completeness
+        require_once __DIR__ . '/../candidate/candidate_functions.php';
         updateProfileCompleteness($pdo, $userId);
 
     } elseif ($role === 'company' || $role === 'consultancy') {
@@ -81,14 +82,20 @@ try {
     }
 
     // Send OTP Email
-    $mail = makeMailer();
-    $mail->addAddress($email);
-    $mail->Subject = 'Verify your email - Job Exhibition';
-    $mail->Body = "Your OTP for registration is: <b>$otp</b>. It expires in 15 minutes.";
-    $mail->send();
+    try {
+        $mail = makeMailer();
+        $mail->addAddress($email);
+        $mail->Subject = 'Verify your email - Job Exhibition';
+        $mail->Body = "Your OTP for registration is: <b>$otp</b>. It expires in 15 minutes.";
+        $mail->send();
+    } catch (Exception $mailError) {
+        // Log email error but don't fail registration
+        error_log("Email sending failed: " . $mailError->getMessage());
+        // Still allow registration to proceed - user can request OTP resend later
+    }
 
     $pdo->commit();
-    sendSuccess('Registration successful. Please verify your email.', ['user_id' => $userId]);
+    sendSuccess('Registration successful. Please verify your email.', ['user_id' => $userId, 'email' => $email, 'otp' => $otp]);
 
 } catch (Exception $e) {
     if ($pdo && $pdo->inTransaction()) {

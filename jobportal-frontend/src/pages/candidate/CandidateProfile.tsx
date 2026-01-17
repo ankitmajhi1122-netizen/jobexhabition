@@ -8,9 +8,9 @@ import SkillsManager from '../../components/SkillsManager';
 import WorkExperienceManager from '../../components/WorkExperienceManager';
 import EducationManager from '../../components/EducationManager';
 import {
-    User, Mail, Phone, MapPin, Briefcase, GraduationCap,
+    User, Phone, MapPin, Briefcase,
     Code, Award, Save, Loader2, CheckCircle2, AlertCircle,
-    LayoutDashboard, LogOut, FileText, Upload, ChevronRight,
+    LayoutDashboard, LogOut, FileText, Upload,
     Sparkles, Target, Zap, Link as LinkIcon, DollarSign, Camera
 } from 'lucide-react';
 
@@ -31,7 +31,8 @@ const CandidateProfile = () => {
         bio: '',
         portfolio_url: '',
         linkedin_url: '',
-        expected_salary: ''
+        expected_salary: '',
+        photo_url: ''
     });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
